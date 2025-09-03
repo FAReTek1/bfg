@@ -1,14 +1,15 @@
 import json
 import os
-import pprint
 import re
 import base64
+import time
+
+from datetime import datetime
 
 from furl import furl
 from github import Github, Auth, ContentFile, Issue
 
-# os.environ["BFG_PAT_GITHUB"]
-auth = Auth.Token(open("PAT").read())
+auth = Auth.Token(os.environ["BFG_PAT_GITHUB"])
 gh = Github(auth=auth)
 
 REPO = gh.get_user().get_repo("inflate-gtp")
@@ -41,11 +42,13 @@ class GTP:
 
 gtp = GTP()
 
-def main():
+def resolve_registrations():
     for issue in REPO.get_issues(
             state="open",
             labels=["register"]
     ):
+        print(f"Found open issue with `register` tag: {issue.url}")
+
         body = issue.body
 
         if re.match(''
@@ -57,12 +60,14 @@ def main():
 
             assert len(lines) == 7, f"Invalid body: {lines}"
 
-            name = lines[2]
-            url = furl(lines[6])
+            name = lines[2].lower()
+            url = furl(lines[6].lower())
 
             register_package(name, url, issue)
 
         else:
+            print("Invalid syntax")
+
             issue.create_comment("""\
 This issue syntax is invalid.
 - The name can only be made up of a-z, A-Z, underscores or dashes.
@@ -75,6 +80,7 @@ def register_package(name: str, url: furl, issue: Issue.Issue):
     message = ""
     def mlog(msg, end: str = '\n'):
         nonlocal message
+        print(msg, end=end)
         message += str(msg) + end
 
     mlog(f"- Registering `{name!r}` for `{url}`")
@@ -116,6 +122,12 @@ def register_package(name: str, url: furl, issue: Issue.Issue):
 def parse_url(url: furl) -> str:
     return "https://github.com/" + '/'.join(url.path.segments)
 
+
+def main():
+    while True:
+        print(f"Checking for registrations... {datetime.now()}")
+        resolve_registrations()
+        time.sleep(60)
 
 if __name__ == '__main__':
     main()
