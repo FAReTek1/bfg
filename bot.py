@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 import re
 import base64
 import time
@@ -9,10 +10,16 @@ from datetime import datetime
 from furl import furl
 from github import Github, Auth, ContentFile, Issue
 
-auth = Auth.Token(os.environ["BFG_PAT_GITHUB"])
+def get_token() -> str:
+    if pathlib.Path("TOKEN").exists():
+        return open("TOKEN").read().strip()
+
+    return os.environ["BFG_PAT_GITHUB"]
+
+auth = Auth.Token(get_token())
 gh = Github(auth=auth)
 
-REPO = gh.get_user().get_repo("inflate-gtp")
+REPO = gh.get_user("faretek1").get_repo("inflate-gtp")
 
 class GTP:
     @property
