@@ -19,7 +19,7 @@ def get_token() -> str:
 auth = Auth.Token(get_token())
 gh = Github(auth=auth)
 
-REPO = gh.get_user("faretek1").get_repo("inflate-gtp")
+REPO = gh.get_organization("inflated-goboscript").get_repo("gtp")
 
 class GTP:
     @property
@@ -120,7 +120,7 @@ def register_package(name: str, url: furl, issue: Issue.Issue):
         return
 
     gtp[name] = url_str
-    mlog("## Added!! See [gtp.json](https://github.com/FAReTek1/inflate-gtp/blob/main/gtp.json)!")
+    mlog("## Added!! See [gtp.json](https://github.com/inflated-goboscript/gtp/blob/main/gtp.json)!")
 
     issue.create_comment(message)
     issue.edit(state="closed")
