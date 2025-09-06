@@ -5,4 +5,4 @@
 
 ###### Hosting this manually on [pythonanywhere](https://www.pythonanywhere.com/)
 
-This is the python bot script that handles [issues at the inflate-gtp repository](https://github.com/FAReTek1/inflate-gtp/issues?q=is%3Aissue)
+This is the python bot script that handles [issues at the goboscript table of packages](https://github.com/inflated-goboscript/gtp/issues)
