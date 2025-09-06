@@ -6,6 +6,7 @@ import base64
 import time
 
 from datetime import datetime
+from typing import Optional
 
 from furl import furl
 from github import Github, Auth, ContentFile, Issue
@@ -35,14 +36,14 @@ class GTP:
         REPO.update_file("gtp.json", "update gtp.raw_data", value, REPO.get_contents("gtp.json").sha)
 
     @property
-    def data(self) -> dict[str, str]:
+    def data(self) -> dict[str, dict[str, str]]:
         return json.loads(self.raw_data)
 
     @data.setter
-    def data(self, value: dict[str, str]):
+    def data(self, value: dict[str, dict[str, str]]):
         self.raw_data = json.dumps(value)
 
-    def __setitem__(self, key: str, value: str):
+    def __setitem__(self, key: str, value: dict[str, str]):
         data = self.data
         data[key] = value
         self.data = data
@@ -83,6 +84,13 @@ This issue syntax is invalid.
             issue.edit(state="closed",
                        state_reason="not_planned")
 
+def find(data: dict[str, dict[str, str]], key: str, value: str, default=None) -> Optional[str]:
+     for k, v in data.items():
+         if v.get(key, default) == value:
+             return k
+
+     return None
+
 def register_package(name: str, url: furl, issue: Issue.Issue):
     message = ""
     def mlog(msg, end: str = '\n'):
@@ -93,7 +101,6 @@ def register_package(name: str, url: furl, issue: Issue.Issue):
     mlog(f"- Registering `{name!r}` for `{url}`")
 
     data = gtp.data
-    data_rev = {v: k for k, v in data.items()}
 
     url_str = parse_url(url)
     mlog(f"- Parsed furl as `{url_str}`")
@@ -112,14 +119,14 @@ def register_package(name: str, url: furl, issue: Issue.Issue):
         issue.edit(state="closed", state_reason="not_planned")
         return
 
-    if existing_name := data_rev.get(url_str):
+    if existing_name := find(data, "url", url_str):
         mlog(f"## Repo already registered as `{existing_name}`")
 
         issue.create_comment(message)
         issue.edit(state="closed", state_reason="not_planned")
         return
 
-    gtp[name] = url_str
+    gtp[name] = {"url": url_str}
     mlog("## Added!! See [gtp.json](https://github.com/inflated-goboscript/gtp/blob/main/gtp.json)!")
 
     issue.create_comment(message)
