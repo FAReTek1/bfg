@@ -5,4 +5,4 @@
 
 ###### Hosting this manually on [pythonanywhere](https://www.pythonanywhere.com/)
 
-This is the python bot script that handles [issues at the goboscript table of packages](https://github.com/inflated-goboscript/gtp/issues)
+This is the python bot script that handles [issues at the goboscript table of packages](https://github.com/inflated-goboscript/gtp/issues?q=is%3Aissue)
